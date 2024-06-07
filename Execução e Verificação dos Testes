@@ -1,0 +1,7 @@
+Execução e Verificação dos Testes
+
+Para executar os testes, utilizamos o `pytest`:
+
+```bash
+pytest tests/
+```
