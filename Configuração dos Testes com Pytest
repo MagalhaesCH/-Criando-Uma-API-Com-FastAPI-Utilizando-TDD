@@ -1,0 +1,74 @@
+Configuração dos Testes com Pytest
+
+ `test_main.py`
+
+```python
+import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import IntegrityError
+
+from app.main import app
+from app.database import Base, get_db
+from app.models import Atleta
+
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base.metadata.create_all(bind=engine)
+
+def override_get_db():
+    try:
+        db = TestingSessionLocal()
+        yield db
+    finally:
+        db.close()
+
+app.dependency_overrides[get_db] = override_get_db
+
+client = TestClient(app)
+
+@pytest.fixture
+def db():
+    Base.metadata.create_all(bind=engine)
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+        Base.metadata.drop_all(bind=engine)
+
+def test_create_atleta(db):
+    response = client.post("/atletas/", json={"nome": "Teste Atleta", "cpf": "12345678901", "centro_treinamento": "Centro 1", "categoria": "Categoria A"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["nome"] == "Teste Atleta"
+    assert data["cpf"] == "12345678901"
+
+def test_create_duplicate_atleta(db):
+    client.post("/atletas/", json={"nome": "Teste Atleta", "cpf": "12345678901", "centro_treinamento": "Centro 1", "categoria": "Categoria A"})
+    response = client.post("/atletas/", json={"nome": "Teste Atleta", "cpf": "12345678901", "centro_treinamento": "Centro 2", "categoria": "Categoria B"})
+    assert response.status_code == 303
+    assert response.json() == {"detail": "Já existe um atleta cadastrado com o cpf: 12345678901"}
+
+def test_read_atletas(db):
+    client.post("/atletas/", json={"nome": "Teste Atleta 1", "cpf": "12345678901", "centro_treinamento": "Centro 1", "categoria": "Categoria A"})
+    client.post("/atletas/", json={"nome": "Teste Atleta 2", "cpf": "12345678902", "centro_treinamento": "Centro 2", "categoria": "Categoria B"})
+    response = client.get("/atletas/")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["items"]) == 2
+
+def test_query_atleta(db):
+    client.post("/atletas/", json={"nome": "Teste Atleta 1", "cpf": "12345678901", "centro_treinamento": "Centro 1", "categoria": "Categoria A"})
+    client.post("/atletas/", json={"nome": "Teste Atleta 2", "cpf": "12345678902", "centro_treinamento": "Centro 2", "categoria": "Categoria B"})
+    response = client.get("/atletas/buscar?nome=Teste Atleta 1")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["nome"] == "Teste Atleta 1"
+```
+
