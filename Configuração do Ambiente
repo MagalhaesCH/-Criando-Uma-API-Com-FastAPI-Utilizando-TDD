@@ -1,0 +1,16 @@
+Configuração do Ambiente
+
+Vamos criar um ambiente virtual e instalar as dependências necessárias.
+
+```bash
+ Crie um ambiente virtual
+python -m venv venv
+
+ Ative o ambiente virtual
+ No Windows
+venv\Scripts\activate
+ No Linux/MacOS
+source venv/bin/activate
+
+ Instale as dependências
+pip install fastapi uvicorn sqlalchemy pytest pytest-asyncio httpx fastapi-pagination
