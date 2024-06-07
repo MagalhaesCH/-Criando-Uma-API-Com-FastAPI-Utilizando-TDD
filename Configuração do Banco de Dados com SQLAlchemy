@@ -1,0 +1,10 @@
+Configuração do Banco de Dados com SQLAlchemy
+
+Primeiro, vamos configurar o banco de dados usando SQLAlchemy.
+
+ `database.py`
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
