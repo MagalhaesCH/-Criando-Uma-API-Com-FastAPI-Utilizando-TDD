@@ -1,0 +1,24 @@
+Estrutura do Projeto
+
+Vamos organizar nosso projeto com a seguinte estrutura:
+
+```
+fastapi_tdd/
+│
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── models.py
+│   ├── database.py
+│   ├── crud.py
+│   ├── schemas.py
+│   └── exceptions.py
+│
+├── tests/
+│   ├── __init__.py
+│   ├── test_main.py
+│
+├── venv/
+│
+└── requirements.txt
+```
