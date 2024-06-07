@@ -1,0 +1,38 @@
+Criação dos Modelos e Esquemas
+
+ `models.py`
+
+```python
+from sqlalchemy import Column, Integer, String
+from .database import Base
+
+class Atleta(Base):
+    __tablename__ = "atletas"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String, index=True)
+    cpf = Column(String, unique=True, index=True)
+    centro_treinamento = Column(String, index=True)
+    categoria = Column(String, index=True)
+```
+
+ `schemas.py`
+
+```python
+from pydantic import BaseModel
+
+class AtletaBase(BaseModel):
+    nome: str
+    cpf: str
+    centro_treinamento: str
+    categoria: str
+
+class AtletaCreate(AtletaBase):
+    pass
+
+class Atleta(AtletaBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+```
