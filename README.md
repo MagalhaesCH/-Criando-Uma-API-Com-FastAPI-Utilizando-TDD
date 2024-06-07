@@ -9,3 +9,10 @@ Introdução ao FastAPI e TDD
 FastAPI é um framework moderno, rápido (alto desempenho), para a construção de APIs com Python 3.6+. Ele oferece validação automática de dados, documentação interativa, e suporte a assinaturas assíncronas.
 
 TDD (Desenvolvimento Orientado a Testes) é uma metodologia de desenvolvimento onde os testes são escritos antes do código funcional. O ciclo de TDD inclui escrever um teste que falhe, escrever o código mínimo necessário para passar o teste, e depois refatorar o código.
+
+Pontos Relevantes
+
+1. Validação Automática: FastAPI valida automaticamente os dados de entrada.
+2. Documentação Automática: Documentação interativa e automática é gerada pelo FastAPI.
+3. Suporte a Assinaturas Assíncronas: FastAPI oferece suporte a assinaturas assíncronas para operações I/O-bound.
+4. Integração com SQLAlchemy: Utilizamos SQLAlchemy para gerenciamento do banco de dados.
