@@ -1,0 +1,52 @@
+Desenvolvimento de Endpoints com Testes
+
+ `main.py`
+
+```python
+from fastapi import FastAPI, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+from typing import List, Optional
+from fastapi_pagination import Page, add_pagination, paginate
+
+from . import models, schemas, crud
+from .database import engine, SessionLocal, get_db
+from .exceptions import IntegrityErrorHandler
+
+models.Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+@app.post("/atletas/", response_model=schemas.Atleta)
+def create_atleta(atleta: schemas.AtletaCreate, db: Session = Depends(get_db)):
+    try:
+        return crud.create_atleta(db=db, atleta=atleta)
+    except IntegrityError:
+        raise HTTPException(status_code=303, detail=f
+
+"Já existe um atleta cadastrado com o cpf: {atleta.cpf}")
+
+@app.get("/atletas/", response_model=Page[schemas.Atleta])
+def read_atletas(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    atletas = crud.get_atletas(db, skip=skip, limit=limit)
+    return paginate(atletas)
+
+@app.get("/atletas/{atleta_id}", response_model=schemas.Atleta)
+def read_atleta(atleta_id: int, db: Session = Depends(get_db)):
+    db_atleta = crud.get_atleta(db, atleta_id=atleta_id)
+    if db_atleta is None:
+        raise HTTPException(status_code=404, detail="Atleta não encontrado")
+    return db_atleta
+
+ Adição de Query Parameters
+@app.get("/atletas/buscar", response_model=List[schemas.Atleta])
+def buscar_atleta(nome: Optional[str] = None, cpf: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(models.Atleta)
+    if nome:
+        query = query.filter(models.Atleta.nome == nome)
+    if cpf:
+        query = query.filter(models.Atleta.cpf == cpf)
+    return query.all()
+
+add_pagination(app)
+```
